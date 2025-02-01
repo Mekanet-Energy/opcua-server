@@ -1,4 +1,3 @@
-name: opcua-server
 services:
   opcua-server:
     build: .
