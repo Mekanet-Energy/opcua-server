@@ -1,10 +1,23 @@
-import { OPCUAServer, OPCUAServerOptions, Variant, DataType } from 'node-opcua';
+import { OPCUAServer, OPCUAServerOptions } from 'node-opcua';
 import { Injectable, Logger } from '@nestjs/common';
+import { variables } from './variables';
 
+/**
+ * @class AppService
+ * @description Main service class for OPC UA server operations
+ * @implements Injectable from NestJS for dependency injection
+ */
 @Injectable()
 export class AppService {
   private readonly logger = new Logger(AppService.name);
   private server: OPCUAServer;
+
+  /**
+   * @private
+   * @readonly
+   * @description Configuration options for the OPC UA server
+   * @type {OPCUAServerOptions}
+   */
   private readonly serverConfig: OPCUAServerOptions = {
     port: 4334,
     resourcePath: '/UA/Server',
@@ -15,6 +28,11 @@ export class AppService {
     },
   };
 
+  /**
+   * @constructor
+   * @description Initializes the OPC UA server when service is instantiated
+   * @throws {Error} If server initialization fails
+   */
   constructor() {
     this.initializeServer().catch((error) => {
       this.logger.error(`Failed to initialize server in constructor: ${error}`);
@@ -22,6 +40,12 @@ export class AppService {
     });
   }
 
+  /**
+   * @private
+   * @async
+   * @description Initializes the OPC UA server with all necessary configurations and variables
+   * @throws {Error} If server initialization or address space setup fails
+   */
   private async initializeServer() {
     try {
       this.server = new OPCUAServer(this.serverConfig);
@@ -33,96 +57,47 @@ export class AppService {
       const addressSpace = this.server.engine.addressSpace;
       if (!addressSpace) throw new Error('AddressSpace not initialized');
 
+      /**
+       * @description Get namespace for adding nodes
+       * @type {Namespace}
+       */
       const namespace = addressSpace.getOwnNamespace();
 
-      // Create device as a folder under Objects folder
+      /**
+       * @description Create main device folder structure
+       * @type {UAObject}
+       */
       const device = namespace.addFolder(addressSpace.rootFolder.objects, {
         browseName: 'MyDevice',
       });
 
-      // Create Simulation folder under device with proper nodeId format
+      /**
+       * @description Create Simulation folder for holding variables
+       * @type {UAObject}
+       */
       const simulationFolder = namespace.addFolder(device, {
         browseName: 'Simulation',
         nodeId: 'ns=1;s=Simulation',
       });
 
-      // Create multiple variables under simulation folder
-      namespace.addVariable({
-        componentOf: simulationFolder,
-        browseName: 'Temperature',
-        nodeId: 'ns=1;s=Temperature',
-        dataType: 'Double',
-        minimumSamplingInterval: 1000,
-        value: {
-          get: () =>
-            new Variant({
-              dataType: DataType.Double,
-              value: Math.random() * 100,
-            }),
-        },
+      this.logger.log(
+        `Adding variables to address space. Total: ${variables.length}`,
+      );
+
+      variables.forEach((variable) => {
+        namespace.addVariable({
+          componentOf: simulationFolder,
+          nodeId: variable.nodeId,
+          browseName: variable.browseName,
+          dataType: variable.dataType,
+          minimumSamplingInterval: variable.minimumSamplingInterval,
+          value: variable.value,
+        });
       });
 
-      namespace.addVariable({
-        componentOf: simulationFolder,
-        browseName: 'Pressure',
-        nodeId: 'ns=1;s=Pressure',
-        dataType: 'Double',
-        minimumSamplingInterval: 1000,
-        value: {
-          get: () =>
-            new Variant({
-              dataType: DataType.Double,
-              value: Math.random() * 200 + 800, // 800-1000 range for pressure
-            }),
-        },
-      });
-
-      namespace.addVariable({
-        componentOf: simulationFolder,
-        browseName: 'Humidity',
-        nodeId: 'ns=1;s=Humidity',
-        dataType: 'Double',
-        minimumSamplingInterval: 1000,
-        value: {
-          get: () =>
-            new Variant({
-              dataType: DataType.Double,
-              value: Math.random() * 100, // 0-100 range for humidity percentage
-            }),
-        },
-      });
-
-      namespace.addVariable({
-        componentOf: simulationFolder,
-        browseName: 'FlowRate',
-        nodeId: 'ns=1;s=FlowRate',
-        dataType: 'Double',
-        minimumSamplingInterval: 1000,
-        value: {
-          get: () =>
-            new Variant({
-              dataType: DataType.Double,
-              value: Math.random() * 50, // 0-50 range for flow rate
-            }),
-        },
-      });
-
-      namespace.addVariable({
-        componentOf: simulationFolder,
-        browseName: 'Status',
-        nodeId: 'ns=1;s=Status',
-        dataType: 'Boolean',
-        minimumSamplingInterval: 1000,
-        value: {
-          get: () =>
-            new Variant({
-              dataType: DataType.Boolean,
-              value: Math.random() > 0.5, // Random boolean value
-            }),
-        },
-      });
-
-      // Start the server after initialization and setup
+      /**
+       * @description Start server and setup event handlers
+       */
       await this.server.start();
 
       const endpoint = this.server.endpoints[0];
@@ -131,7 +106,9 @@ export class AppService {
       this.logger.log(`Server is listening on port ${endpoint.port}`);
       this.logger.log(`Primary endpoint URL: ${endpointUrl}`);
 
-      // Add error event handler
+      /**
+       * @description Setup event handlers for various server events
+       */
       this.server.on('error', (err) => {
         this.logger.error(`Server error: ${err}`);
       });
@@ -153,8 +130,10 @@ export class AppService {
 
   /**
    * Gracefully shuts down the OPC UA server
-   * @param timeout Shutdown timeout in milliseconds
-   * @returns Promise<void>
+   * @async
+   * @param {number} timeout - Shutdown timeout in milliseconds
+   * @returns {Promise<void>}
+   * @throws {Error} If shutdown fails
    */
   async shutdown(timeout = 1000): Promise<void> {
     try {
