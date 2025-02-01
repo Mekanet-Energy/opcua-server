@@ -10,6 +10,8 @@ Our OPC UA Server Simulator offers a robust environment tailored for developers 
 
 - **Simulated OPC UA Server:** Easily emulate an OPC UA server with customizable data points to match specific testing requirements.
 - **Realistic Data Generation:** Produce dynamic and random sensor values to mirror real-world operating conditions.
+- **Dynamic Variable Management:** Add, modify, or remove variables through REST API endpoints in real-time.
+- **Backup and Recovery:** Export and import server configurations and variable definitions for easy backup and deployment.
 - **Seamless Integration:** Integrate effortlessly with existing OPC UA client applications to streamline testing processes.
 - **Scalable Configuration:** Adjust server settings and data types to accommodate various testing scales and complexities.
 - **Comprehensive Logging:** Access detailed logs to monitor server activities and data exchanges, facilitating effective troubleshooting.
