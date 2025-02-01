@@ -1,0 +1,11 @@
+name: opcua-server
+services:
+  opcua-server:
+    build: .
+    ports:
+      - '3005:3005'
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    volumes:
+      - ./certificates:/app/certificates
