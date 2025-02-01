@@ -18,7 +18,7 @@ export class CreateVariableDto {
   @ApiProperty({
     description: 'The data type of the variable in OPC UA format',
     example: 'Double',
-    enum: ['Double', 'Float', 'Int32', 'String', 'Boolean'],
+    enum: ['Double', 'Float', 'Int32', 'String'],
     required: true,
     type: String,
   })

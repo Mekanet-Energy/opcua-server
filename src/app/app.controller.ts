@@ -199,7 +199,7 @@ export class AppController {
       machineStatus: {
         value: {
           browseName: 'MachineStatus',
-          dataType: 'Boolean',
+          dataType: 'Double',
           minimumSamplingInterval: 1000,
           nodeId: 'ns=1;s=MachineStatus',
           minimum: 0,

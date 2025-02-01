@@ -1,0 +1,102 @@
+[
+  {
+    "id": "a0355fec-5cf1-4293-a10a-1eea0362a8e5",
+    "browseName": "Temperature",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Temperature",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 100,
+    "valueType": "Sinusoid"
+  },
+  {
+    "id": "c9738406-a663-41c5-9bd7-bc2b492cf234",
+    "browseName": "Pressure",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Pressure",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 1000,
+    "valueType": "Random"
+  },
+  {
+    "id": "fb24ab6a-6b07-45c4-904a-b2a3f8b58531",
+    "browseName": "Humidity",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Humidity",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 100,
+    "valueType": "Triangle"
+  },
+  {
+    "id": "f57c5d22-a411-41a4-b9a4-e716a32b56ea",
+    "browseName": "Voltage",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Voltage",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 240,
+    "valueType": "Square"
+  },
+  {
+    "id": "83aad903-8d78-488b-ab0f-821d9c921115",
+    "browseName": "Current",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Current",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 100,
+    "valueType": "Sinusoid"
+  },
+  {
+    "id": "bd3cde38-82aa-4c75-a1df-4d63fb05a23a",
+    "browseName": "MotorSpeed",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=MotorSpeed",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 3000,
+    "valueType": "Sawtooth"
+  },
+  {
+    "id": "8ec76fa4-49bd-42e8-98dc-474f638c8a08",
+    "browseName": "TankLevel",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=TankLevel",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 100,
+    "valueType": "Random"
+  },
+  {
+    "id": "1570ba33-6ce2-4f82-be38-44237be7209d",
+    "browseName": "Vibration",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=Vibration",
+    "minimumSamplingInterval": 500,
+    "minimum": 0,
+    "maximum": 50,
+    "valueType": "Triangle"
+  },
+  {
+    "id": "1178e92c-7e1b-4155-9d80-32da68e6b29a",
+    "browseName": "PowerFactor",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=PowerFactor",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 1,
+    "valueType": "Sinusoid"
+  },
+  {
+    "id": "c191b4a2-4c6e-40fa-abf2-69eec99051ee",
+    "browseName": "MachineStatus",
+    "dataType": "Double",
+    "nodeId": "ns=1;s=MachineStatus",
+    "minimumSamplingInterval": 1000,
+    "minimum": 0,
+    "maximum": 1,
+    "valueType": "Square"
+  }
+]
