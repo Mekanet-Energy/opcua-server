@@ -5,10 +5,15 @@ import {
   OPCUAServerOptions,
   Variant,
 } from 'node-opcua';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Variable } from './entity/variable.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { CreateVariableDto } from './dto/createVariable.dto';
 import { UpdateVariableDto } from './dto/updateVariable.dto';
 import { Namespace, UAObject } from 'node-opcua';
@@ -59,6 +64,30 @@ export class AppService {
   async createVariable(
     createVariableDto: CreateVariableDto,
   ): Promise<CreateVariableDto> {
+    // Check for existing variable with same browseName
+    const existingByBrowseName = await this.variableRepository.findOne({
+      where: { browseName: createVariableDto.browseName },
+    });
+
+    if (existingByBrowseName) {
+      throw new ConflictException(
+        `Variable with browseName "${createVariableDto.browseName}" already exists`,
+      );
+    }
+
+    // Check for existing variable with same nodeId if provided
+    if (createVariableDto.nodeId) {
+      const existingByNodeId = await this.variableRepository.findOne({
+        where: { nodeId: createVariableDto.nodeId },
+      });
+
+      if (existingByNodeId) {
+        throw new ConflictException(
+          `Variable with nodeId "${createVariableDto.nodeId}" already exists`,
+        );
+      }
+    }
+
     const variable = this.variableRepository.create({
       browseName: createVariableDto.browseName,
       dataType: createVariableDto.dataType,
@@ -81,6 +110,39 @@ export class AppService {
     if (!variable) {
       throw new NotFoundException(`Variable with ID ${id} not found`);
     }
+
+    // Check for conflicts with browseName if it's being updated
+    if (updateVariableDto.browseName) {
+      const existingByBrowseName = await this.variableRepository.findOne({
+        where: {
+          browseName: updateVariableDto.browseName,
+          id: Not(id), // Exclude current variable from check
+        },
+      });
+
+      if (existingByBrowseName) {
+        throw new ConflictException(
+          `Variable with browseName "${updateVariableDto.browseName}" already exists`,
+        );
+      }
+    }
+
+    // Check for conflicts with nodeId if it's being updated
+    if (updateVariableDto.nodeId) {
+      const existingByNodeId = await this.variableRepository.findOne({
+        where: {
+          nodeId: updateVariableDto.nodeId,
+          id: Not(id), // Exclude current variable from check
+        },
+      });
+
+      if (existingByNodeId) {
+        throw new ConflictException(
+          `Variable with nodeId "${updateVariableDto.nodeId}" already exists`,
+        );
+      }
+    }
+
     const updatedVariable = await this.variableRepository.save({
       ...variable,
       ...updateVariableDto,
@@ -149,26 +211,32 @@ export class AppService {
             get: () => {
               const min = variable.minimum ?? 0;
               const max = variable.maximum ?? 100;
-              let value: number;
+              let value: number | boolean;
 
-              switch (variable.valueType) {
-                case 'Random':
-                  value = this.generateRandomValue(min, max);
-                  break;
-                case 'Sawtooth':
-                  value = this.generateSawtoothValue(min, max);
-                  break;
-                case 'Sinusoid':
-                  value = this.generateSinusoidValue(min, max);
-                  break;
-                case 'Square':
-                  value = this.generateSquareValue(min, max);
-                  break;
-                case 'Triangle':
-                  value = this.generateTriangleValue(min, max);
-                  break;
-                default:
-                  value = min;
+              // Handle boolean data type specifically
+              if (variable.dataType === 'Boolean') {
+                value = this.generateBooleanValue();
+              } else {
+                // Handle numeric values as before
+                switch (variable.valueType) {
+                  case 'Random':
+                    value = this.generateRandomValue(min, max);
+                    break;
+                  case 'Sawtooth':
+                    value = this.generateSawtoothValue(min, max);
+                    break;
+                  case 'Sinusoid':
+                    value = this.generateSinusoidValue(min, max);
+                    break;
+                  case 'Square':
+                    value = this.generateSquareValue(min, max);
+                    break;
+                  case 'Triangle':
+                    value = this.generateTriangleValue(min, max);
+                    break;
+                  default:
+                    value = min;
+                }
               }
 
               return new Variant({
@@ -189,11 +257,9 @@ export class AppService {
 
       this.logger.log(`Server is listening on port ${endpoint.port}`);
       this.logger.log(`Primary endpoint URL: ${endpointUrl}`);
-
       this.server.on('error', (err) => {
         this.logger.error(`Server error: ${err}`);
       });
-
       this.server.on('post_initialize', () => {
         this.logger.log('Server initialized successfully');
       });
@@ -202,6 +268,12 @@ export class AppService {
       });
       this.server.on('close', () => {
         this.logger.log('Server closed');
+      });
+      this.server.on('post_shutdown', () => {
+        this.logger.log('Server shutdown completed');
+      });
+      this.server.on('serverError', (err) => {
+        this.logger.error(`Server error: ${err}`);
       });
     } catch (error) {
       this.logger.error(`Failed to initialize OPC UA server: ${error}`);
@@ -247,6 +319,11 @@ export class AppService {
     const offset = min + amplitude;
     const phase = Date.now() / 1000;
     return ((2 * amplitude) / Math.PI) * Math.asin(Math.sin(phase)) + offset;
+  }
+
+  // Add this new method for boolean value generation
+  generateBooleanValue(): boolean {
+    return Math.random() < 0.5;
   }
 
   async exportDatabase() {

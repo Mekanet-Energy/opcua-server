@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { Variable } from './entity/variable.entity';
 import { MulterModule } from '@nestjs/platform-express';
+import { VariableSeeder } from './app.seeder';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, VariableSeeder],
 })
 export class AppModule {}
