@@ -189,6 +189,9 @@ export class AppService {
         browseName: 'Simulation',
         nodeId: 'ns=1;s=Simulation',
       });
+      this.logger.log(
+        `Simulation folder created with nodeId: ${simulationFolder.nodeId.toString()}`,
+      );
       const variables = await this.getVariables();
 
       this.logger.log(
