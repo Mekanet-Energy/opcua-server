@@ -223,7 +223,17 @@ export class VariableSeeder implements OnModuleInit {
 
   async seed() {
     try {
-      this.logger.log('Starting variable seeding...');
+      this.logger.log('Checking if Variable seeding is needed');
+
+      const count = await this.variableRepository.count();
+      if (count > 0) {
+        this.logger.log('Variable seeding is not needed');
+        return;
+      }
+
+      this.logger.warn(
+        'Variable tables is empty. Seeding Variables with examples...',
+      );
 
       for (const variable of InitialVariables) {
         const existingVariable = await this.variableRepository.findOne({
