@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "browseName",
+      "dataType",
+      "nodeId",
+      "minimumSamplingInterval",
+      "minimum",
+      "maximum",
+      "valueType"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "description": "UUID v4 format"
+      },
+      "browseName": {
+        "type": "string",
+        "pattern": "^ns=1;s=.+$",
+        "description": "OPC UA browse name with namespace"
+      },
+      "dataType": {
+        "type": "string",
+        "enum": ["Double"],
+        "description": "Data type of the node"
+      },
+      "nodeId": {
+        "type": "string",
+        "pattern": "^ns=1;s=.+$",
+        "description": "OPC UA node identifier"
+      },
+      "minimumSamplingInterval": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Minimum sampling interval in milliseconds"
+      },
+      "minimum": {
+        "type": "number",
+        "description": "Minimum value for the node"
+      },
+      "maximum": {
+        "type": "number",
+        "description": "Maximum value for the node"
+      },
+      "valueType": {
+        "type": "string",
+        "enum": ["Random"],
+        "description": "Type of value generation"
+      }
+    },
+    "additionalProperties": false
+  }
+}
