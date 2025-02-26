@@ -36,3 +36,6 @@ npm run start:dev
 # Production Mode
 npm run start:prod
 ```
+## Testing
+You can use [UAExpert](https://www.unified-automation.com/downloads/opc-ua-clients.html) or [opcua-commander](https://github.com/node-opcua/opcua-commander) to connect to the server and test the functionality. The endpoint
+URL will be displayed in the console when the server starts.
